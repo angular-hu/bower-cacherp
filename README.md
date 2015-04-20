@@ -1,2 +1,72 @@
-# bower-cacherp
-Bower distribution for httpu.cacherp
+# Publish repo for angular-hu-cacherp
+
+This repo is for distribution on `bower`. The source for this module is in the
+[main angular-hu-cacherp repo](https://github.com/angular-hu/angular-hu).
+Please file issues and pull requests against that repo.
+
+## httpu.cacherp
+
+Factory that decorates the  [$cacheFactory.Cache](https://docs.angularjs.org/api/ng/type/$cacheFactory.Cache) created by the specified [$cacheFactory](https://docs.angularjs.org/api/ng/service/$cacheFactory). It creates caches meant to be used by the [$http](https://docs.angularjs.org/api/ng/service/$http) service that will remove some request parameters from the URL (that is used as cache key)
+
+### Installation
+
+Get it from [bower](http://bower.io/) or directly download it.
+
+```sh
+bower install --save angular-hu-cacherp
+```
+
+Add the dependency in the HTML
+
+```html
+<script type="text/javascript" src="bower_components/angular-hu-cacherp/cacherp.js"></script>
+```
+
+Add the `httpu.cacherp` dependency to your App Module
+
+```js
+angular.module('MyApp', ['httpu.cacherp']);
+```
+
+The `huCacherpFactory` dependency is now available
+
+### Usage
+
+```js
+angular.module('MyApp')
+//Create the same cache a $cacheFactory would create, but this cache will drop 'timestamp' queryParamter from the URL
+.factory('apiCache', function(huCacherpFactory, $cacheFactory) {
+  return huCacherpFactory(
+    'apiCache',  //The cache ID
+    { //options to be passed to the cacheFactory specified below.
+      removableParams: [ //Array with the parameters that wouldnt be taken into account when hitting caches
+        'timestamp' 
+      ],
+      capacity: 10
+    },
+    $cacheFactory  //The cacheFactory that will be used for creating this decorated cache
+  );
+})
+.run(function($http, apiCache) {
+  //Make a timestamped request, and cache response for id=5. timestamp param will be removed
+  $http.get('http://myapi.com/things?id=5&timestamp=' + Date.now(), {
+    cache: apiCache
+  });
+  
+  //this request will hit the cache!!
+  $http.get('http://myapi.com/things?id=5&timestamp=' + Date.now() + 1000, {
+    cache: apiCache
+  });
+  
+});
+```
+
+### Use cases
+
+* You have a backend that need variable request parameters, like oauth1 backends, and wanna cache those requests
+
+## LICENSE
+
+The MIT License ([MIT](LICENSE))
+
+Copyright (c) 2015 Telefónica I+D - http://www.tid.es
