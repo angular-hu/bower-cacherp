@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>angular-hu-cacherp by angular-hu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">angular-hu-cacherp</h1>
+      <h2 class="project-tagline">Remove request parameters from $http cache - httpu.cacherp</h2>
+      <a href="https://github.com/angular-hu/bower-cacherp" class="btn">View on GitHub</a>
+      <a href="https://github.com/angular-hu/bower-cacherp/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/angular-hu/bower-cacherp/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h2>
+<a id="httpucacherp" class="anchor" href="#httpucacherp" aria-hidden="true"><span class="octicon octicon-link"></span></a>httpu.cacherp</h2>
+
+<p>Factory that decorates the  <a href="https://docs.angularjs.org/api/ng/type/%24cacheFactory.Cache">$cacheFactory.Cache</a> created by the specified <a href="https://docs.angularjs.org/api/ng/service/%24cacheFactory">$cacheFactory</a>. It creates caches meant to be used by the <a href="https://docs.angularjs.org/api/ng/service/%24http">$http</a> service that will remove some request parameters from the URL (that is used as cache key)</p>
+
+<h3>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Get it from <a href="http://bower.io/">bower</a> or directly download it.</p>
+
+<div class="highlight highlight-sh"><pre>bower install --save angular-hu-cacherp</pre></div>
+
+<p>Add the dependency in the HTML</p>
+
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/javascript<span class="pl-pds">"</span></span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>bower_components/angular-hu-cacherp/cacherp.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
+
+<p>Add the <code>httpu.cacherp</code> dependency to your App Module</p>
+
+<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>MyApp<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>httpu.cacherp<span class="pl-pds">'</span></span>]);</pre></div>
+
+<p>The <code>huCacherpFactory</code> dependency is now available</p>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>MyApp<span class="pl-pds">'</span></span>)
+<span class="pl-c">//Create the same cache a $cacheFactory would create, but this cache will drop 'timestamp' queryParamter from the URL</span>
+.factory(<span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">huCacherpFactory</span>, <span class="pl-smi">$cacheFactory</span>) {
+  <span class="pl-k">return</span> huCacherpFactory(
+    <span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>,  <span class="pl-c">//The cache ID</span>
+    { <span class="pl-c">//options to be passed to the cacheFactory specified below.</span>
+      removableParams<span class="pl-k">:</span> [ <span class="pl-c">//Array with the parameters that wouldnt be taken into account when hitting caches</span>
+        <span class="pl-s"><span class="pl-pds">'</span>timestamp<span class="pl-pds">'</span></span> 
+      ],
+      capacity<span class="pl-k">:</span> <span class="pl-c1">10</span>
+    },
+    $cacheFactory  <span class="pl-c">//The cacheFactory that will be used for creating this decorated cache</span>
+  );
+})
+.run(<span class="pl-k">function</span>(<span class="pl-smi">$http</span>, <span class="pl-smi">apiCache</span>) {
+  <span class="pl-c">//Make a timestamped request, and cache response for id=5. timestamp param will be removed</span>
+  $http.get(<span class="pl-s"><span class="pl-pds">'</span>http://myapi.com/things?id=5&amp;timestamp=<span class="pl-pds">'</span></span> <span class="pl-k">+</span> <span class="pl-c1">Date</span>.now(), {
+    cache<span class="pl-k">:</span> apiCache
+  });
+
+  <span class="pl-c">//this request will hit the cache!!</span>
+  $http.get(<span class="pl-s"><span class="pl-pds">'</span>http://myapi.com/things?id=5&amp;timestamp=<span class="pl-pds">'</span></span> <span class="pl-k">+</span> <span class="pl-c1">Date</span>.now() <span class="pl-k">+</span> <span class="pl-c1">1000</span>, {
+    cache<span class="pl-k">:</span> apiCache
+  });
+
+});</pre></div>
+
+<h3>
+<a id="use-cases" class="anchor" href="#use-cases" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use cases</h3>
+
+<ul>
+<li>You have a backend that need variable request parameters, like oauth1 backends, and wanna cache those requests</li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>LICENSE</h2>
+
+<p>The MIT License (<a href="LICENSE">MIT</a>)</p>
+
+<p>Copyright (c) 2015 Telefónica I+D - <a href="http://www.tid.es">http://www.tid.es</a></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/angular-hu/bower-cacherp">angular-hu-cacherp</a> is maintained by <a href="https://github.com/angular-hu">angular-hu</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
