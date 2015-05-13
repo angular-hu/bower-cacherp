@@ -39,25 +39,30 @@
 
 <div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>MyApp<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>httpu.cacherp<span class="pl-pds">'</span></span>]);</pre></div>
 
-<p>The <code>huCacherpFactory</code> dependency is now available</p>
+<p>The <code>huCacherpFactory</code> and <code>huCacherp</code> and dependencies is now available</p>
 
 <h3>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
 
 <div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>MyApp<span class="pl-pds">'</span></span>)
-<span class="pl-c">//Create the same cache a $cacheFactory would create, but this cache will drop 'timestamp' queryParamter from the URL</span>
-.factory(<span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">huCacherpFactory</span>, <span class="pl-smi">$cacheFactory</span>) {
-  <span class="pl-k">return</span> huCacherpFactory(
-    <span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>,  <span class="pl-c">//The cache ID</span>
-    { <span class="pl-c">//options to be passed to the cacheFactory specified below.</span>
-      removableParams<span class="pl-k">:</span> [ <span class="pl-c">//Array with the parameters that wouldnt be taken into account when hitting caches</span>
-        <span class="pl-s"><span class="pl-pds">'</span>timestamp<span class="pl-pds">'</span></span> 
-      ],
-      capacity<span class="pl-k">:</span> <span class="pl-c1">10</span>
-    },
-    $cacheFactory  <span class="pl-c">//The cacheFactory that will be used for creating this decorated cache</span>
-  );
+<span class="pl-c">//Decorate a cache but this cache will drop 'timestamp' queryParamter from the URL</span>
+.factory(<span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">huCacherp</span>, <span class="pl-smi">$cacheFactory</span>) {
+  <span class="pl-c">//Decorate any cache with an array with the parameters that wouldnt be taken into account when hitting caches</span>
+  <span class="pl-k">return</span> huCacherp($cacheFactory(<span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>), [<span class="pl-s"><span class="pl-pds">'</span>timestamp<span class="pl-pds">'</span></span>]);
 })
+<span class="pl-c">//OR Create the same cache a $cacheFactory would create, but this cache will drop 'timestamp' queryParamter from the URL</span>
+.factory(<span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>, <span class="pl-k">function</span>(<span class="pl-smi">huCacherpFactory</span>, <span class="pl-smi">$cacheFactory</span>) {
+    <span class="pl-k">return</span> huCacherpFactory(
+      <span class="pl-s"><span class="pl-pds">'</span>apiCache<span class="pl-pds">'</span></span>,  <span class="pl-c">//The cache ID</span>
+      { <span class="pl-c">//options to be passed to the cacheFactory specified below.</span>
+        removableParams<span class="pl-k">:</span> [ <span class="pl-c">//Array with the parameters that wouldnt be taken into account when hitting caches</span>
+          <span class="pl-s"><span class="pl-pds">'</span>timestamp<span class="pl-pds">'</span></span>
+        ],
+        capacity<span class="pl-k">:</span> <span class="pl-c1">10</span>
+      },
+      $cacheFactory  <span class="pl-c">//The cacheFactory that will be used for creating this decorated cache</span>
+    );
+  })
 .run(<span class="pl-k">function</span>(<span class="pl-smi">$http</span>, <span class="pl-smi">apiCache</span>) {
   <span class="pl-c">//Make a timestamped request, and cache response for id=5. timestamp param will be removed</span>
   $http.get(<span class="pl-s"><span class="pl-pds">'</span>http://myapi.com/things?id=5&amp;timestamp=<span class="pl-pds">'</span></span> <span class="pl-k">+</span> <span class="pl-c1">Date</span>.now(), {
